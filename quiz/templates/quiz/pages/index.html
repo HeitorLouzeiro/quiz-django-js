@@ -1,6 +1,161 @@
-{% include "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+</head>
+<body>
+    <div id="game-container"></div>
+    
+    <script>
+        // Configurações iniciais do jogo
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            backgroundColor: '#ffffff',
+            parent: 'game-container',
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
 
-{% block container %}
+        // Inicializa o jogo
+        const game = new Phaser.Game(config);
 
-<h1>Home page</h1>
-{% endblock container %}
+        // Variáveis globais
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questionText;
+        let answerButtons = [];
+
+        // Preload: Carregar ativos
+        function preload() {
+            this.load.json('questions', '/api/questions/'); // Carrega perguntas do backend
+        }
+
+        // Create: Configurar elementos iniciais
+        function create() {
+            // Carregar as perguntas do JSON
+            questions = this.cache.json.get('questions');
+            
+            // Exibir a primeira pergunta
+            displayQuestion(this);
+        }
+
+        // Atualizar o estado do jogo
+        function update() {
+            // Lógica do jogo pode ser implementada aqui, se necessário
+        }
+
+        // Exibir a pergunta atual
+        function displayQuestion(scene) {
+            if (currentQuestionIndex >= questions.length) {
+                // Se todas as perguntas foram respondidas, finalize o jogo
+                showFinalScore(scene);
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+
+            // Exibe o texto da pergunta
+            questionText = scene.add.text(400, 100, question.text, {
+                fontSize: '24px',
+                color: '#000',
+                align: 'center',
+                wordWrap: { width: 700 }
+            }).setOrigin(0.5);
+
+            // Exibe as respostas
+            const answers = [question.correct_answer, ...question.wrong_answers];
+            Phaser.Utils.Array.Shuffle(answers);
+
+            for (let i = 0; i < answers.length; i++) {
+                const button = scene.add.text(400, 200 + i * 50, answers[i], {
+                    fontSize: '20px',
+                    color: '#fff',
+                    backgroundColor: '#007BFF',
+                    padding: { x: 10, y: 5 },
+                    align: 'center',
+                    fixedWidth: 300
+                })
+                .setInteractive()
+                .setOrigin(0.5)
+                .on('pointerdown', () => handleAnswer(scene, answers[i], question.correct_answer))
+                .on('pointerover', () => button.setStyle({ backgroundColor: '#0056b3' }))
+                .on('pointerout', () => button.setStyle({ backgroundColor: '#007BFF' }));
+
+                answerButtons.push(button);
+            }
+        }
+
+        // Lida com a resposta do jogador
+        function handleAnswer(scene, selectedAnswer, correctAnswer) {
+            // Limpa as respostas e a pergunta atual
+            questionText.destroy();
+            answerButtons.forEach(button => button.destroy());
+            answerButtons = [];
+
+            // Verifica se a resposta está correta
+            if (selectedAnswer === correctAnswer) {
+                score += 10; // Incrementa a pontuação
+            }
+
+            // Avança para a próxima pergunta
+            currentQuestionIndex++;
+            displayQuestion(scene);
+        }
+
+        // Exibe a pontuação final
+        function showFinalScore(scene) {
+            scene.add.text(400, 300, `Fim do jogo! Pontuação final: ${score}`, {
+                fontSize: '24px',
+                color: '#000',
+                align: 'center'
+            }).setOrigin(0.5);
+
+            // Envia a pontuação para o backend
+            saveScore();
+        }
+
+        // Envia a pontuação do jogador ao backend
+        function saveScore() {
+            const playerName = prompt('Digite seu nome:');
+            if (!playerName) return;
+
+            fetch('/api/score/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    player_name: playerName,
+                    points: score,
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log(data.message))
+            .catch(error => console.error('Erro ao salvar a pontuação:', error));
+        }
+    </script>
+</body>
+</html>

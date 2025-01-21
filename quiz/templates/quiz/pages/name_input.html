@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block container %}
+    <div class="container">
+        <h1>Welcome to the Quiz!</h1>
+        <form id="playerForm">
+            <div class="form-group">
+                <label for="playerName">Enter your name:</label>
+                <input type="text" class="form-control" id="playerName" placeholder="Your name">
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Start Game</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('playerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const playerName = document.getElementById('playerName').value;
+            if (playerName) {
+                // Armazena o nome do jogador
+                localStorage.setItem('playerName', playerName);
+                // Redireciona para o jogo
+                window.location.href = "/quiz";
+            } else {
+                alert('Please enter your name!');
+            }
+        });
+    </script>
+{% endblock %}
