@@ -35,6 +35,16 @@ def get_questions(request):
     return JsonResponse({"questions": questions})
 
 
+def get_scores(request):
+    if request.method == "GET":
+        scores = Score.objects.all().order_by(
+            '-points')  # Ordena por pontuação decrescente
+        scores_data = [{"player_name": score.player_name,
+                        "points": score.points} for score in scores]
+        return JsonResponse(scores_data, safe=False)
+    return JsonResponse({"error": "Invalid method"}, status=400)
+
+
 def save_score(request):
     if request.method == "POST":
         player_name = request.POST.get("player_name")

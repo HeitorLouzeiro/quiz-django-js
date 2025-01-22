@@ -1,29 +1,76 @@
 {% extends "base.html" %}
 
 {% block container %}
-    <div class="container">
-        <h1>Welcome to the Quiz!</h1>
-        <form id="playerForm">
-            <div class="form-group">
-                <label for="playerName">Enter your name:</label>
-                <input type="text" class="form-control" id="playerName" placeholder="Your name">
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Start Game</button>
-        </form>
-    </div>
+<div class="container mt-5">
+    <h1>Welcome to the Quiz!</h1>
 
-    <script>
-        document.getElementById('playerForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const playerName = document.getElementById('playerName').value;
-            if (playerName) {
-                // Armazena o nome do jogador
-                localStorage.setItem('playerName', playerName);
-                // Redireciona para o jogo
-                window.location.href = "/quiz";
-            } else {
-                alert('Please enter your name!');
+    <!-- Formulário para inserir o nome do jogador -->
+    <form id="playerForm">
+        <div class="form-group">
+            <label for="playerName">Enter your name:</label>
+            <input type="text" class="form-control" id="playerName" placeholder="Your name">
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Start Game</button>
+    </form>
+
+    <!-- Tabela para exibir a pontuação dos jogadores -->
+    <div class="mt-5">
+        <h2>Player Scores</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Player Name</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="scoreTable">
+                <!-- As pontuações serão carregadas dinamicamente aqui -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('playerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const playerName = document.getElementById('playerName').value;
+        if (playerName) {
+            // Armazena o nome do jogador
+            localStorage.setItem('playerName', playerName);
+            // Redireciona para o jogo
+            window.location.href = "/quiz";
+        } else {
+            alert('Please enter your name!');
+        }
+    });
+
+    // Carregar as pontuações e exibi-las na tabela
+    function loadScores() {
+        fetch('/quiz/scores/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            return response.json(); // Certifique-se de que o JSON é retornado
+        })
+        .then(data => {
+            const scoreTable = document.getElementById('scoreTable');
+            scoreTable.innerHTML = '';
+            data.forEach(score => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${score.player_name}</td>
+                    <td>${score.points}</td>
+                `;
+                scoreTable.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading scores:', error);
         });
-    </script>
+    }
+
+    // Chamar a função para carregar as pontuações ao carregar a página
+    document.addEventListener('DOMContentLoaded', loadScores);
+</script>
 {% endblock %}
