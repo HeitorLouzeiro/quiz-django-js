@@ -48,11 +48,23 @@ def get_scores(request):
 def save_score(request):
     if request.method == 'POST':
         player_name = request.POST.get('player_name')
-        points = request.POST.get('points')
+        points = int(request.POST.get('points'))  # Converter para inteiro
 
-        # Salvar a pontuação no banco de dados
-        score = Score(player_name=player_name, points=points)
-        score.save()
+        # Verificar se já existe uma pontuação para esse jogador
+        score = Score.objects.filter(player_name=player_name).first()
 
-        return JsonResponse({'message': 'Pontuação salva com sucesso!'})
+        if score:
+            # Se a pontuação atual for maior que a registrada, atualizar
+            if points > score.points:
+                score.points = points
+                score.save()
+                return JsonResponse({'message': 'Pontuação atualizada com sucesso!'})
+            else:
+                return JsonResponse({'message': 'A pontuação não é maior do que a já registrada.'})
+        else:
+            # Se não existir pontuação, salvar como nova
+            new_score = Score(player_name=player_name, points=points)
+            new_score.save()
+            return JsonResponse({'message': 'Pontuação salva com sucesso!'})
+
     return JsonResponse({'message': 'Método inválido'}, status=405)
