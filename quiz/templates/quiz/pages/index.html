@@ -25,7 +25,7 @@
         <div id="score-container" class="text-center mt-5 d-none">
             <h2>Você terminou o quiz!</h2>
             <p>Sua pontuação: <span id="score"></span></p>
-            <button id="save-score-btn" class="btn btn-success">Salvar Pontuação</button>
+            <!-- A pontuação será salva automaticamente no final -->
         </div>
     </div>
 
@@ -46,7 +46,6 @@
             }).fail(function () {
                 $('#question-container').html('<p class="text-danger">Erro ao carregar perguntas.</p>');
             });
-            
 
             // Função para exibir a questão atual
             function displayQuestion() {
@@ -95,6 +94,20 @@
                     $('#quiz-container').addClass('d-none');
                     $('#score-container').removeClass('d-none');
                     $('#score').text(score);
+
+                    // Salvar a pontuação automaticamente ao final
+                    const playerName = localStorage.getItem('playerName');
+                    if (playerName) {
+                        $.post('api/score/save/', {
+                            player_name: playerName,
+                            points: score,
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        }).done(function (response) {
+                            alert(response.message);
+                        }).fail(function () {
+                            alert('Erro ao salvar a pontuação.');
+                        });
+                    }
                 }
             });
 
@@ -103,23 +116,6 @@
                 if (currentQuestionIndex > 0) {
                     currentQuestionIndex--;
                     displayQuestion();
-                }
-            });
-
-            // Salvar a pontuação
-            $('#save-score-btn').click(function () {
-                const playerName = prompt('Digite seu nome:');
-                if (playerName) {
-                    $.post('/quiz/save_score/', {
-                        player_name: playerName,
-                        points: score,
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    }).done(function (response) {
-                        alert(response.message);
-                        window.location.reload();
-                    }).fail(function () {
-                        alert('Erro ao salvar a pontuação.');
-                    });
                 }
             });
         });

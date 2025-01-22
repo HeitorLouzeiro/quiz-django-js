@@ -46,15 +46,13 @@ def get_scores(request):
 
 
 def save_score(request):
-    if request.method == "POST":
-        player_name = request.POST.get("player_name")
-        points = request.POST.get("points")
-        if not player_name or not points:
-            return JsonResponse({"error": "Invalid data"}, status=400)
-        try:
-            points = int(points)
-            score = Score.objects.create(
-                player_name=player_name, points=points)
-            return JsonResponse({"message": "Score saved successfully!", "score_id": score.id})
-        except ValueError:
-            return JsonResponse({"error": "Points must be an integer"}, status=400)
+    if request.method == 'POST':
+        player_name = request.POST.get('player_name')
+        points = request.POST.get('points')
+
+        # Salvar a pontuação no banco de dados
+        score = Score(player_name=player_name, points=points)
+        score.save()
+
+        return JsonResponse({'message': 'Pontuação salva com sucesso!'})
+    return JsonResponse({'message': 'Método inválido'}, status=405)

@@ -7,5 +7,5 @@ urlpatterns = [
     path('quiz', views.index, name='quiz-home'),
     path('quiz/scores/', views.get_scores, name='get_scores'),
     path('api/questions/', views.get_questions, name='get_questions'),
-    path('api/score/', views.save_score, name='save_score'),
+    path('api/score/save/', views.save_score, name='save_score'),
 ]
