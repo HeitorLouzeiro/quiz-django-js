@@ -15,6 +15,7 @@
             <div id="question-container" class="mt-4">
                 <!-- As questões serão carregadas dinamicamente aqui -->
             </div>
+            <div id="timer" class="mt-2 text-center text-danger fw-bold"></div>
             <div class="mt-3 d-flex justify-content-between">
                 <button id="prev-btn" class="btn btn-secondary" disabled>Anterior</button>
                 <button id="next-btn" class="btn btn-primary">Próxima</button>
@@ -34,6 +35,8 @@
             let questions = [];
             let currentQuestionIndex = 0;
             let score = 0;
+            let timer;
+            const questionTimeLimit = 15; // Tempo limite em segundos para cada pergunta
 
             // Carregar perguntas via AJAX
             $.getJSON('/api/questions/', function (data) {
@@ -50,9 +53,10 @@
             // Função para exibir a questão atual
             function displayQuestion() {
                 if (currentQuestionIndex < questions.length) {
-                    const question = questions[currentQuestionIndex];
+                    clearTimeout(timer);
+                    startTimer();
 
-                    // Misturar as respostas (correta + incorretas)
+                    const question = questions[currentQuestionIndex];
                     const options = [...question.wrong_answers, question.correct_answer];
                     options.sort(() => Math.random() - 0.5);
 
@@ -68,48 +72,42 @@
                         </ul>
                     `);
 
-                    // Gerenciar estado dos botões
                     $('#prev-btn').prop('disabled', currentQuestionIndex === 0);
                     $('#next-btn').prop('disabled', false);
                 }
             }
 
-            // Navegar para a próxima questão
-            $('#next-btn').click(function () {
-                const selectedOption = $('input[name="answer"]:checked').val();
-                if (!selectedOption) {
-                    alert('Por favor, selecione uma resposta!');
-                    return;
-                }
+            // Função para iniciar o timer
+            function startTimer() {
+                let timeLeft = questionTimeLimit;
+                $('#timer').text(`Tempo restante: ${timeLeft}s`);
+                
+                timer = setInterval(() => {
+                    timeLeft--;
+                    $('#timer').text(`Tempo restante: ${timeLeft}s`);
 
-                // Verificar se a resposta está correta
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        goToNextQuestion();
+                    }
+                }, 1000);
+            }
+
+            // Navegar para a próxima questão
+            function goToNextQuestion() {
+                const selectedOption = $('input[name="answer"]:checked').val();
                 if (selectedOption === questions[currentQuestionIndex].correct_answer) {
                     score++;
                 }
-
                 currentQuestionIndex++;
                 if (currentQuestionIndex < questions.length) {
                     displayQuestion();
                 } else {
-                    $('#quiz-container').addClass('d-none');
-                    $('#score-container').removeClass('d-none');
-                    $('#score').text(score);
-
-                    // Salvar a pontuação automaticamente ao final
-                    const playerName = localStorage.getItem('playerName');
-                    if (playerName) {
-                        $.post('api/score/save/', {
-                            player_name: playerName,
-                            points: score,
-                            csrfmiddlewaretoken: '{{ csrf_token }}'
-                        }).done(function (response) {
-                            alert(response.message);
-                        }).fail(function () {
-                            alert('Erro ao salvar a pontuação.');
-                        });
-                    }
+                    endQuiz();
                 }
-            });
+            }
+
+            $('#next-btn').click(goToNextQuestion);
 
             // Navegar para a questão anterior
             $('#prev-btn').click(function () {
@@ -118,6 +116,27 @@
                     displayQuestion();
                 }
             });
+
+            // Finalizar o quiz
+            function endQuiz() {
+                clearTimeout(timer);
+                $('#quiz-container').addClass('d-none');
+                $('#score-container').removeClass('d-none');
+                $('#score').text(score);
+
+                const playerName = localStorage.getItem('playerName');
+                if (playerName) {
+                    $.post('api/score/save/', {
+                        player_name: playerName,
+                        points: score,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    }).done(function (response) {
+                        alert(response.message);
+                    }).fail(function () {
+                        alert('Erro ao salvar a pontuação.');
+                    });
+                }
+            }
         });
     </script>
 </body>
