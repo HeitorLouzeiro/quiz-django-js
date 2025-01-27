@@ -15,9 +15,7 @@
             <div id="question-container" class="mt-4">
                 <!-- As questões serão carregadas dinamicamente aqui -->
             </div>
-            <div id="timer" class="mt-2 text-center text-danger fw-bold"></div>
-            <div class="mt-3 d-flex justify-content-between">
-                <button id="prev-btn" class="btn btn-secondary" disabled>Anterior</button>
+            <div class="mt-3 d-flex justify-content-end">
                 <button id="next-btn" class="btn btn-primary">Próxima</button>
             </div>
         </div>
@@ -35,13 +33,13 @@
             let questions = [];
             let currentQuestionIndex = 0;
             let score = 0;
+            const timePerQuestion = 10; // Tempo em segundos
             let timer;
-            const questionTimeLimit = 15; // Tempo limite em segundos para cada pergunta
 
             // Carregar perguntas via AJAX
             $.getJSON('/api/questions/', function (data) {
                 if (data.questions && data.questions.length > 0) {
-                    questions = data.questions; // Acesse a chave "questions"
+                    questions = data.questions;
                     displayQuestion();
                 } else {
                     $('#question-container').html('<p class="text-danger">Nenhuma pergunta encontrada.</p>');
@@ -53,10 +51,9 @@
             // Função para exibir a questão atual
             function displayQuestion() {
                 if (currentQuestionIndex < questions.length) {
-                    clearTimeout(timer);
-                    startTimer();
-
                     const question = questions[currentQuestionIndex];
+
+                    // Misturar as respostas (correta + incorretas)
                     const options = [...question.wrong_answers, question.correct_answer];
                     options.sort(() => Math.random() - 0.5);
 
@@ -70,73 +67,67 @@
                                 </li>
                             `).join('')}
                         </ul>
+                        <div class="mt-3 text-end"><span id="timer" class="badge bg-warning text-dark">${timePerQuestion}</span> segundos restantes</div>
                     `);
 
-                    $('#prev-btn').prop('disabled', currentQuestionIndex === 0);
-                    $('#next-btn').prop('disabled', false);
+                    // Reiniciar o timer
+                    clearInterval(timer);
+                    startTimer();
                 }
-            }
-
-            // Função para iniciar o timer
-            function startTimer() {
-                let timeLeft = questionTimeLimit;
-                $('#timer').text(`Tempo restante: ${timeLeft}s`);
-                
-                timer = setInterval(() => {
-                    timeLeft--;
-                    $('#timer').text(`Tempo restante: ${timeLeft}s`);
-
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        goToNextQuestion();
-                    }
-                }, 1000);
             }
 
             // Navegar para a próxima questão
-            function goToNextQuestion() {
+            function nextQuestion() {
                 const selectedOption = $('input[name="answer"]:checked').val();
-                if (selectedOption === questions[currentQuestionIndex].correct_answer) {
+
+                // Verificar se a resposta está correta
+                if (selectedOption && selectedOption === questions[currentQuestionIndex].correct_answer) {
                     score++;
                 }
+
                 currentQuestionIndex++;
                 if (currentQuestionIndex < questions.length) {
                     displayQuestion();
                 } else {
-                    endQuiz();
+                    clearInterval(timer);
+                    $('#quiz-container').addClass('d-none');
+                    $('#score-container').removeClass('d-none');
+                    $('#score').text(score);
+
+                    // Salvar a pontuação automaticamente ao final
+                    const playerName = localStorage.getItem('playerName');
+                    if (playerName) {
+                        $.post('api/score/save/', {
+                            player_name: playerName,
+                            points: score,
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        }).done(function (response) {
+                            alert(response.message);
+                        }).fail(function () {
+                            alert('Erro ao salvar a pontuação.');
+                        });
+                    }
                 }
             }
 
-            $('#next-btn').click(goToNextQuestion);
+            // Timer para avançar automaticamente
+            function startTimer() {
+                let timeLeft = timePerQuestion;
+                $('#timer').text(timeLeft);
 
-            // Navegar para a questão anterior
-            $('#prev-btn').click(function () {
-                if (currentQuestionIndex > 0) {
-                    currentQuestionIndex--;
-                    displayQuestion();
-                }
-            });
+                timer = setInterval(function () {
+                    timeLeft--;
+                    $('#timer').text(timeLeft);
 
-            // Finalizar o quiz
-            function endQuiz() {
-                clearTimeout(timer);
-                $('#quiz-container').addClass('d-none');
-                $('#score-container').removeClass('d-none');
-                $('#score').text(score);
-
-                const playerName = localStorage.getItem('playerName');
-                if (playerName) {
-                    $.post('api/score/save/', {
-                        player_name: playerName,
-                        points: score,
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    }).done(function (response) {
-                        alert(response.message);
-                    }).fail(function () {
-                        alert('Erro ao salvar a pontuação.');
-                    });
-                }
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        nextQuestion();
+                    }
+                }, 1000);
             }
+
+            // Botão de próxima pergunta
+            $('#next-btn').click(nextQuestion);
         });
     </script>
 </body>
