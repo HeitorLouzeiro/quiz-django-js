@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 from django.conf import settings
 from django.core.cache import cache
@@ -32,7 +33,12 @@ def get_questions(request):
             return JsonResponse({"error": "File not found"}, status=404)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON"}, status=400)
-    return JsonResponse({"questions": questions})
+
+    # Selecionar aleatoriamente 10 perguntas
+    selected_questions = random.sample(questions, 10)
+    request.session['questions'] = selected_questions
+
+    return JsonResponse({"questions": selected_questions})
 
 
 def get_scores(request):

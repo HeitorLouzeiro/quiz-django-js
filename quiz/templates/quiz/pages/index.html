@@ -12,6 +12,13 @@
         <!-- Container do Quiz -->
         <div id="quiz-container">
             <h1 class="text-center">Quiz</h1>
+            <div class="card mb-3">
+                <div class="card-body d-flex justify-content-between">
+                    <span id="correct-count" class="text-success">Acertos: 0</span>
+                    <span id="wrong-count" class="text-danger">Erros: 0</span>
+                    <span id="question-progress">0/10</span>
+                </div>
+            </div>
             <div id="question-container" class="mt-4">
                 <!-- As questões serão carregadas dinamicamente aqui -->
             </div>
@@ -38,6 +45,8 @@
             let questions = [];
             let currentQuestionIndex = 0;
             let score = 0;
+            let correctCount = 0;
+            let wrongCount = 0;
             const timePerQuestion = 10; // Tempo em segundos
             const progressInterval = 100; // Intervalo para atualizar a barra de progresso (ms)
             let timer;
@@ -75,6 +84,9 @@
                         </ul>
                     `);
 
+                    // Atualizar o progresso da questão
+                    $('#question-progress').text(`${currentQuestionIndex + 1}/${questions.length}`);
+
                     // Reiniciar a barra de carregamento
                     clearInterval(timer);
                     startTimer();
@@ -88,7 +100,14 @@
                 // Verificar se a resposta está correta
                 if (selectedOption && selectedOption === questions[currentQuestionIndex].correct_answer) {
                     score++;
+                    correctCount++;
+                } else {
+                    wrongCount++;
                 }
+
+                // Atualizar contadores de acertos e erros
+                $('#correct-count').text(`Acertos: ${correctCount}`);
+                $('#wrong-count').text(`Erros: ${wrongCount}`);
 
                 currentQuestionIndex++;
                 if (currentQuestionIndex < questions.length) {
