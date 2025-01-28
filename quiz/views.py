@@ -54,6 +54,7 @@ def get_scores(request):
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 
+@csrf_exempt
 def save_score(request):
     if request.method == 'POST':
         player_name = request.POST.get('player_name')

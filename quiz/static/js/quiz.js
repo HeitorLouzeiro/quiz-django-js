@@ -1,131 +1,128 @@
-$(document).ready(function () {
-    // Verificar se a página foi recarregada
-    if (performance.navigation.type === 1) {
-        localStorage.setItem('feedbackMessage', 'Você recarregou a página. Por favor, tente novamente.');
-        window.location.href = "/";
-    }
 
-    let questions = [];
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let correctCount = 0;
-    let wrongCount = 0;
-    const timePerQuestion = 10; // Tempo em segundos
-    const progressInterval = 100; // Intervalo para atualizar a barra de progresso (ms)
-    let timer;
+    $(document).ready(function () {
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        const timePerQuestion = 10; // Tempo por pergunta em segundos
+        const progressInterval = 100; // Intervalo de atualização da barra de progresso em ms
+        let timer;
 
-    // Carregar perguntas via AJAX
-    $.getJSON('/api/questions/', function (data) {
-        if (data.questions && data.questions.length > 0) {
-            questions = data.questions;
-            displayQuestion();
-        } else {
-            $('#question-container').html('<p class="text-danger">Nenhuma pergunta encontrada.</p>');
-        }
-    }).fail(function () {
-        localStorage.setItem('feedbackMessage', 'Erro de conexão. Por favor, tente novamente.');
-        window.location.href = "/";
-    });
-
-    // Função para exibir a questão atual
-    function displayQuestion() {
-        if (currentQuestionIndex < questions.length) {
-            const question = questions[currentQuestionIndex];
-
-            // Misturar as respostas (correta + incorretas)
-            const options = [...question.wrong_answers, question.correct_answer];
-            options.sort(() => Math.random() - 0.5);
-
-            $('#question-container').html(`
-                <h4>${question.text}</h4>
-                <ul class="list-group mt-3">
-                    ${options.map((option, index) => `
-                        <li class="list-group-item">
-                            <input type="radio" name="answer" id="option-${index}" value="${option}">
-                            <label for="option-${index}">${option}</label>
-                        </li>
-                    `).join('')}
-                </ul>
-            `);
-
-            // Atualizar o progresso da questão
-            $('#question-progress').text(`${currentQuestionIndex + 1}/${questions.length}`);
-
-            // Reiniciar a barra de carregamento
-            clearInterval(timer);
-            startTimer();
-        }
-    }
-
-    // Navegar para a próxima questão
-    function nextQuestion() {
-        const selectedOption = $('input[name="answer"]:checked').val();
-
-        // Verificar se a resposta está correta
-        if (selectedOption && selectedOption === questions[currentQuestionIndex].correct_answer) {
-            score++;
-            correctCount++;
-        } else {
-            wrongCount++;
-        }
-
-        // Atualizar contadores de acertos e erros
-        $('#correct-count').text(`Acertos: ${correctCount}`);
-        $('#wrong-count').text(`Erros: ${wrongCount}`);
-
-        currentQuestionIndex++;
-        if (currentQuestionIndex < questions.length) {
-            displayQuestion();
-        } else {
-            clearInterval(timer);
-            saveScore(score); // Salvar a pontuação
-            localStorage.setItem('playerScore', score); // Armazenar a pontuação no localStorage
-            window.location.href = "quiz/results/"; // Redirecionar para a página de resultados
-        }
-    }
-
-    // Timer com barra de carregamento
-    function startTimer() {
-        const totalTicks = timePerQuestion * 1000 / progressInterval; // Total de atualizações
-        let ticks = 0;
-
-        $('#progress-bar').css('width', '0%').attr('aria-valuenow', 0);
-
-        timer = setInterval(function () {
-            ticks++;
-            const progress = (ticks / totalTicks) * 100;
-            $('#progress-bar').css('width', `${progress}%`).attr('aria-valuenow', progress.toFixed(0));
-
-            if (ticks >= totalTicks) {
-                clearInterval(timer);
-                nextQuestion(); // Avança automaticamente
+        // Carregar perguntas via AJAX
+        $.getJSON('/api/questions/', function (data) {
+            if (data.questions && data.questions.length > 0) {
+                questions = data.questions;
+                displayQuestion();
+            } else {
+                $('#question-container').html('<p class="text-danger">Nenhuma pergunta encontrada.</p>');
             }
-        }, progressInterval);
-    }
+        }).fail(function () {
+            alert('Erro ao carregar as perguntas. Tente novamente mais tarde.');
+        });
 
-    // Função para pegar o token CSRF do formulário oculto
-    function getCSRFToken() {
-        return $("form input[name='csrfmiddlewaretoken']").val();
-    }
+        // Exibir a questão atual
+        function displayQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
 
-    // Função para salvar o score
-    function saveScore(finalScore) {
-        // Salvar a pontuação automaticamente ao final
-        const playerName = localStorage.getItem('playerName');
-        if (playerName) {
+                // Misturar respostas (correta + incorretas)
+                const options = [...question.wrong_answers, question.correct_answer];
+                options.sort(() => Math.random() - 0.5);
+
+                // Renderizar pergunta e opções como cards
+                $('#question-container').html(`
+                    <h4>${question.text}</h4>
+                    <div class="row mt-3">
+                        ${options.map((option) => `
+                            <div class="col-6">
+                                <div class="card option-card mb-3" data-answer="${option}">
+                                    <div class="card-body text-center">
+                                        ${option}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `);
+
+                // Adicionar evento de clique nos cards
+                $('.option-card').on('click', function () {
+                    const selectedOption = $(this).data('answer'); // Obter a opção selecionada
+                    handleAnswer(selectedOption, $(this)); // Verificar a resposta
+                });
+
+                // Atualizar progresso
+                $('#question-progress').text(`Pergunta ${currentQuestionIndex + 1} de ${questions.length}`);
+
+                // Reiniciar barra de progresso
+                clearInterval(timer);
+                startTimer();
+            }
+        }
+
+        // Verificar resposta e avançar
+        function handleAnswer(selectedOption, cardElement) {
+            $('.option-card').off('click'); // Desativar cliques nos outros cards
+
+            if (selectedOption === questions[currentQuestionIndex].correct_answer) {
+                score++;
+                correctCount++;
+                cardElement.addClass('correct');
+            } else {
+                wrongCount++;
+                cardElement.addClass('wrong');
+            }
+
+            // Atualizar contadores
+            $('#correct-count').text(`Acertos: ${correctCount}`);
+            $('#wrong-count').text(`Erros: ${wrongCount}`);
+
+            // Aguarde 1 segundo antes de avançar para a próxima pergunta
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion();
+                } else {
+                    clearInterval(timer);
+                    saveScore(score); // Salvar a pontuação
+                    localStorage.setItem('playerScore', score); // Salvar no localStorage
+                    window.location.href = "quiz/results/"; // Redirecionar para os resultados
+                }
+            }, 1000);
+        }
+
+        // Timer com barra de progresso
+        function startTimer() {
+            const totalTicks = timePerQuestion * 1000 / progressInterval; // Total de atualizações
+            let ticks = 0;
+
+            $('#progress-bar').css('width', '0%').attr('aria-valuenow', 0);
+
+            timer = setInterval(function () {
+                ticks++;
+                const progress = (ticks / totalTicks) * 100;
+                $('#progress-bar').css('width', `${progress}%`).attr('aria-valuenow', progress.toFixed(0));
+
+                if (ticks >= totalTicks) {
+                    clearInterval(timer);
+                    handleAnswer(null, null); // Avança automaticamente sem resposta
+                }
+            }, progressInterval);
+        }
+
+        // Salvar pontuação
+        function saveScore(finalScore) {
+            const playerName = localStorage.getItem('playerName') || "Jogador Anônimo";
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.post('/api/score/save/', {
                 player_name: playerName,
-                points: finalScore, // Use o finalScore que foi passado para a função
-                csrfmiddlewaretoken: getCSRFToken()  // Agora passamos o token CSRF corretamente
+                points: finalScore,
+                csrfmiddlewaretoken: csrfToken,
             }).done(function (response) {
-                alert(response.message);
+                console.log('Pontuação salva com sucesso!');
             }).fail(function () {
-                alert('Erro ao salvar a pontuação.');
+                console.log('Erro ao salvar a pontuação.');
             });
         }
-    }
-
-    // Botão de próxima pergunta
-    $('#next-btn').click(nextQuestion);
-});
-    
+    });
