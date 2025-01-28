@@ -8,10 +8,12 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 from .models import Score
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
 def name_input(request):
+
     return render(request, 'quiz/pages/name_input.html')
 
 
@@ -25,7 +27,7 @@ def get_questions(request):
         json_path = os.path.join(
             settings.BASE_DIR, 'questions', 'questions.json')
         try:
-            with open(json_path, 'r') as file:
+            with open(json_path, 'r', encoding='utf-8') as file:
                 questions = json.load(file)
                 # Cache por 1 hora
                 cache.set('questions', questions, timeout=3600)
@@ -41,6 +43,7 @@ def get_questions(request):
     return JsonResponse({"questions": selected_questions})
 
 
+@csrf_exempt
 def get_scores(request):
     if request.method == "GET":
         scores = Score.objects.all().order_by(
@@ -74,6 +77,7 @@ def save_score(request):
             return JsonResponse({'message': 'Pontuação salva com sucesso!'})
 
     return JsonResponse({'message': 'Método inválido'}, status=405)
+
 
 def results(request):
     return render(request, 'quiz/pages/results.html')

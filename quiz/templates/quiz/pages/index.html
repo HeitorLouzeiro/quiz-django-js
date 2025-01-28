@@ -10,6 +10,11 @@
     <script src="{% static 'js/quiz.js' %}"></script>
 </head>
 <body>
+    <!-- Formulário oculto para CSRF -->
+    <form method="POST" style="display: none;">
+        {% csrf_token %}
+    </form>
+
     <div class="container mt-5">
         <!-- Container do Quiz -->
         <div id="quiz-container">

@@ -103,15 +103,20 @@ $(document).ready(function () {
         }, progressInterval);
     }
 
+    // Função para pegar o token CSRF do formulário oculto
+    function getCSRFToken() {
+        return $("form input[name='csrfmiddlewaretoken']").val();
+    }
+
     // Função para salvar o score
     function saveScore(finalScore) {
         // Salvar a pontuação automaticamente ao final
         const playerName = localStorage.getItem('playerName');
         if (playerName) {
-            $.post('api/score/save/', {
+            $.post('/api/score/save/', {
                 player_name: playerName,
-                points: score,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
+                points: finalScore, // Use o finalScore que foi passado para a função
+                csrfmiddlewaretoken: getCSRFToken()  // Agora passamos o token CSRF corretamente
             }).done(function (response) {
                 alert(response.message);
             }).fail(function () {
@@ -123,3 +128,4 @@ $(document).ready(function () {
     // Botão de próxima pergunta
     $('#next-btn').click(nextQuestion);
 });
+    
