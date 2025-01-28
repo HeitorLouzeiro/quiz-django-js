@@ -8,3 +8,6 @@ class Score(models.Model):
     player_name = models.CharField(max_length=100)
     points = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.player_name} - {self.points} pontos"

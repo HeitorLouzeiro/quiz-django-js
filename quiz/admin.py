@@ -5,4 +5,7 @@ from .models import Score
 # Register your models here.
 
 
-admin.site.register(Score)
+@admin.register(Score)
+class ScoreAdmin(admin.ModelAdmin):
+    list_display = ('player_name', 'points', 'timestamp')
+    list_filter = ('timestamp',)
