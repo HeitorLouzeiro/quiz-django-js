@@ -68,3 +68,6 @@ def save_score(request):
             return JsonResponse({'message': 'Pontuação salva com sucesso!'})
 
     return JsonResponse({'message': 'Método inválido'}, status=405)
+
+def results(request):
+    return render(request, 'quiz/pages/results.html')

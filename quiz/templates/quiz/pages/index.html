@@ -96,9 +96,8 @@
                 } else {
                     clearInterval(timer);
                     saveScore(score); // Salvar a pontuação
-                    $('#quiz-container').addClass('d-none');
-                    $('#score-container').removeClass('d-none');
-                    $('#score').text(score);
+                    localStorage.setItem('playerScore', score); // Armazenar a pontuação no localStorage
+                    window.location.href = "quiz/results/"; // Redirecionar para a página de resultados
                 }
             }
 
@@ -123,22 +122,20 @@
 
             // Função para salvar o score
             function saveScore(finalScore) {
-                    // Salvar a pontuação automaticamente ao final
-                    const playerName = localStorage.getItem('playerName');
-                    if (playerName) {
-                        $.post('api/score/save/', {
-                            player_name: playerName,
-                            points: score,
-                            csrfmiddlewaretoken: '{{ csrf_token }}'
-                        }).done(function (response) {
-                            alert(response.message);
-                        }).fail(function () {
-                            alert('Erro ao salvar a pontuação.');
-                        });
-                    }
+                // Salvar a pontuação automaticamente ao final
+                const playerName = localStorage.getItem('playerName');
+                if (playerName) {
+                    $.post('api/score/save/', {
+                        player_name: playerName,
+                        points: score,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    }).done(function (response) {
+                        alert(response.message);
+                    }).fail(function () {
+                        alert('Erro ao salvar a pontuação.');
+                    });
+                }
             }
-
-
 
             // Botão de próxima pergunta
             $('#next-btn').click(nextQuestion);
