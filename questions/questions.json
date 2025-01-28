@@ -1,12 +1,127 @@
 [
     {
-        "text": "What is 2+2?",
-        "correct_answer": "4",
-        "wrong_answers": ["3", "5", "6"]
+      "text": "Qual é a capital do Brasil?",
+      "correct_answer": "Brasília",
+      "wrong_answers": ["Rio de Janeiro", "São Paulo", "Salvador"]
     },
     {
-        "text": "What is the capital of France?",
-        "correct_answer": "Paris",
-        "wrong_answers": ["London", "Berlin", "Madrid"]
+      "text": "Quantos estados tem o Brasil?",
+      "correct_answer": "26",
+      "wrong_answers": ["27", "25", "24"]
+    },
+    {
+      "text": "Qual é o maior planeta do sistema solar?",
+      "correct_answer": "Júpiter",
+      "wrong_answers": ["Marte", "Saturno", "Terra"]
+    },
+    {
+      "text": "Qual é o símbolo químico da água?",
+      "correct_answer": "H2O",
+      "wrong_answers": ["CO2", "NaCl", "H2SO4"]
+    },
+    {
+      "text": "Em que ano começou a Segunda Guerra Mundial?",
+      "correct_answer": "1939",
+      "wrong_answers": ["1914", "1945", "1941"]
+    },
+    {
+      "text": "Quem pintou a Mona Lisa?",
+      "correct_answer": "Leonardo da Vinci",
+      "wrong_answers": ["Michelangelo", "Rafael", "Donatello"]
+    },
+    {
+      "text": "Qual é o menor país do mundo?",
+      "correct_answer": "Cidade do Vaticano",
+      "wrong_answers": ["Mônaco", "Nauru", "Tuvalu"]
+    },
+    {
+      "text": "Qual é a montanha mais alta do mundo?",
+      "correct_answer": "Monte Everest",
+      "wrong_answers": ["K2", "Kangchenjunga", "Lhotse"]
+    },
+    {
+      "text": "Qual é o maior oceano do mundo?",
+      "correct_answer": "Oceano Pacífico",
+      "wrong_answers": ["Oceano Atlântico", "Oceano Índico", "Oceano Ártico"]
+    },
+    {
+      "text": "Qual é o símbolo químico do ouro?",
+      "correct_answer": "Au",
+      "wrong_answers": ["Ag", "Fe", "Hg"]
+    },
+    {
+      "text": "Quem escreveu \"Romeu e Julieta\"?",
+      "correct_answer": "William Shakespeare",
+      "wrong_answers": ["Charles Dickens", "Jane Austen", "Mark Twain"]
+    },
+    {
+      "text": "Qual é a capital do Japão?",
+      "correct_answer": "Tóquio",
+      "wrong_answers": ["Quioto", "Osaka", "Hiroshima"]
+    },
+    {
+      "text": "Em que ano o Brasil proclamou a independência?",
+      "correct_answer": "1822",
+      "wrong_answers": ["1889", "1500", "1808"]
+    },
+    {
+      "text": "Quem inventou o telefone?",
+      "correct_answer": "Alexander Graham Bell",
+      "wrong_answers": ["Thomas Edison", "Nikola Tesla", "Guglielmo Marconi"]
+    },
+    {
+      "text": "Qual é a raiz quadrada de 144?",
+      "correct_answer": "12",
+      "wrong_answers": ["11", "13", "14"]
+    },
+    {
+      "text": "Qual é o nome do único satélite natural da Terra?",
+      "correct_answer": "Lua",
+      "wrong_answers": ["Sol", "Marte", "Vênus"]
+    },
+    {
+      "text": "Qual é o maior órgão do corpo humano?",
+      "correct_answer": "Pele",
+      "wrong_answers": ["Fígado", "Cérebro", "Coração"]
+    },
+    {
+      "text": "Qual é o menor número primo?",
+      "correct_answer": "2",
+      "wrong_answers": ["1", "3", "5"]
+    },
+    {
+      "text": "Qual é o símbolo químico do oxigênio?",
+      "correct_answer": "O",
+      "wrong_answers": ["H", "C", "N"]
+    },
+    {
+      "text": "Quantos ossos existem no corpo humano?",
+      "correct_answer": "206",
+      "wrong_answers": ["200", "210", "205"]
+    },
+    {
+      "text": "Qual é a capital da Austrália?",
+      "correct_answer": "Canberra",
+      "wrong_answers": ["Sydney", "Melbourne", "Perth"]
+    },
+    {
+      "text": "Qual é a moeda do Japão?",
+      "correct_answer": "Iene",
+      "wrong_answers": ["Dólar", "Euro", "Libra"]
+    },
+    {
+      "text": "Quem é o autor de \"Orgulho e Preconceito\"?",
+      "correct_answer": "Jane Austen",
+      "wrong_answers": ["Charlotte Brontë", "Emily Brontë", "George Eliot"]
+    },
+    {
+      "text": "Qual o nome do processo de transformação da água em vapor?",
+      "correct_answer": "Evaporação",
+      "wrong_answers": ["Condensação", "Precipitação", "Solidificação"]
+    },
+    {
+      "text": "Qual a fórmula da água?",
+      "correct_answer": "H2O",
+      "wrong_answers": ["H2O2", "CO2", "O2"]
     }
-]
+  ]
