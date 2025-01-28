@@ -44,6 +44,7 @@
         $(document).ready(function () {
             // Verificar se a página foi recarregada
             if (performance.navigation.type === 1) {
+                localStorage.setItem('feedbackMessage', 'Você recarregou a página. Por favor, tente novamente.');
                 window.location.href = "/";
             }
 
@@ -65,7 +66,8 @@
                     $('#question-container').html('<p class="text-danger">Nenhuma pergunta encontrada.</p>');
                 }
             }).fail(function () {
-                $('#question-container').html('<p class="text-danger">Erro ao carregar perguntas.</p>');
+                localStorage.setItem('feedbackMessage', 'Erro de conexão. Por favor, tente novamente.');
+                window.location.href = "/";
             });
 
             // Função para exibir a questão atual

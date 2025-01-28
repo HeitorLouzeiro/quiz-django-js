@@ -4,6 +4,11 @@
 <div class="container mt-5">
     <h1>Welcome to the Quiz!</h1>
 
+    <!-- Mensagem de feedback -->
+    <div id="feedback-message" class="alert alert-danger d-none" role="alert">
+        <!-- A mensagem de feedback será carregada dinamicamente aqui -->
+    </div>
+
     <!-- Formulário para inserir o nome do jogador -->
     <form id="playerForm">
         <div class="form-group">
@@ -72,5 +77,19 @@
 
     // Chamar a função para carregar as pontuações ao carregar a página
     document.addEventListener('DOMContentLoaded', loadScores);
+
+    // Verificar se há uma mensagem de feedback no localStorage
+    const feedbackMessage = localStorage.getItem('feedbackMessage');
+    if (feedbackMessage) {
+        const feedbackElement = document.getElementById('feedback-message');
+        feedbackElement.textContent = feedbackMessage;
+        feedbackElement.classList.remove('d-none');
+        localStorage.removeItem('feedbackMessage'); // Remover a mensagem após exibir
+
+        // Remover a mensagem após 5 segundos
+        setTimeout(() => {
+            feedbackElement.classList.add('d-none');
+        }, 5000);
+    }
 </script>
 {% endblock %}
