@@ -42,6 +42,11 @@
 
     <script>
         $(document).ready(function () {
+            // Verificar se a página foi recarregada
+            if (performance.navigation.type === 1) {
+                window.location.href = "/";
+            }
+
             let questions = [];
             let currentQuestionIndex = 0;
             let score = 0;
